@@ -1,0 +1,66 @@
+services:
+  # devcontainer
+  devcontainer:
+    build:
+      context: ./.images/alpine
+      dockerfile: Dockerfile
+      args:
+        VARIANT: 3.19
+        INSTALL_ZSH: "true"
+    container_name: devcontainer
+    volumes:
+      - .:/workspace:cached
+    networks:
+      - wp-network
+    command: sleep infinity
+  # mysql installation
+  database:
+    image: mysql:latest
+    container_name: database
+    restart: unless-stopped
+    ports:
+      - 3306:3306
+    env_file:
+      - ./.environments/.env.db
+    networks:
+      - wp-network
+    volumes:
+      - ./.data:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          memory: 2048m
+  # php installation
+  php:
+    depends_on:
+      - database
+    build:
+      context: ./.images/php
+      dockerfile: Dockerfile
+      args:
+        VERSION: 8.3
+    container_name: php
+    restart: unless-stopped
+    volumes:
+      - ./wordpress:/var/www/html:rw,z
+    networks:
+      - wp-network
+  # nginx webserver
+  nginx:
+    depends_on:
+      - database
+      - php
+    image: nginx:stable-alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - 8080:80
+    volumes:
+      - ./.config/nginx:/etc/nginx/conf.d
+      - ./wordpress:/var/www/html:rw,z
+    networks:
+      - wp-network
+
+networks:
+  wp-network:
+    driver: bridge
