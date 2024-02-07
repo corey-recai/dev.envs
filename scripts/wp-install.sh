@@ -16,7 +16,7 @@ function do_setup {
 
 function do_destroy {
   echo -e "\n[INFO] Removing $WP_FILE..."
-  rm -rf "$WP_FILE"
+  rm -rf "./$WP_FILE"
 }
 
 function create_dir {
@@ -28,15 +28,14 @@ function create_dir {
 function validate_checksum {
   echo -e "\n[INFO] Validating checksums..."
   # request the checksum from wordpress.org and check it againt the file
-  echo -n "$(curl -s "$WP_URL/$WP_FILE.sha1") $WP_FILE" | sha1sum -c 2>/dev/null | grep -q "OK" &>/dev/null
+  echo -n "$(curl -s "$WP_URL/$WP_FILE.sha1") ./$WP_FILE" | sha1sum -c 2>/dev/null | grep -q "OK" &>/dev/null
 
   if [ $? == 0 ]; then
-    echo -e "\n[INFO] Checksums matched" && install_wordpress
+    echo -e "\n[INFO] Checksums matched"
   else
     #  if the checksums didn't match
     echo -e "\n[ERROR] Checksums do not match"
     # remove the file and reinstall
-    echo -e "\n[INFO] Removing exiting $WP_FILE..."
     do_destroy &&
       do_install
   fi
@@ -44,14 +43,14 @@ function validate_checksum {
 
 function get_wordpress {
   # silently download the wordpress file
-  curl -s -o "$WP_FILE" "$WP_URL/$WP_FILE"
+  curl -s -o "./$WP_FILE" "$WP_URL/$WP_FILE"
 }
 
 function expand_archive {
   echo -e "\n[INFO] Expanding $WP_FILE into $WP_DIR..."
   # create the src/wordpress directory and expand the arcive into it
   create_dir "$WP_DIR" &&
-    tar -xzf "$WP_FILE" -C "$(dirname $WP_DIR)" &&
+    tar -xzf "./$WP_FILE" -C "$(dirname $WP_DIR)" &&
     echo -e "\n[INFO] Successfully expanded $WP_FILE to $WP_DIR"
 
 }
@@ -79,13 +78,14 @@ function install_wordpress {
 function do_install {
   do_setup
   # check if the WordPress archive already exists
-  if [ ! -f "$WP_FILE" ]; then
-    echo -e "[INFO] Downloading WordPress..."
+  if [ ! -f "./$WP_FILE" ]; then
+    echo -e "\n[INFO] Downloading WordPress..."
     get_wordpress &&
-      validate_checksum
+      validate_checksum &&
+      install_wordpress
   else
-    echo -e "\n[INFO] $WP_FILE already exists" &&
-      validate_checksum
+    echo -e "\n[INFO] $WP_FILE already exists"
+    validate_checksum
   fi
   do_destroy
   echo -e "\n[INFO] WordPress installation complete"
