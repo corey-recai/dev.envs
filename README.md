@@ -10,3 +10,6 @@ TODO:
 - add php.ini config and apache config
 - figure out how to get php extensions working in devcontainer
 - find more bugs...
+
+- user wordpress for handling content only ACF & Custom Post types
+- Java for API

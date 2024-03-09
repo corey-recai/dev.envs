@@ -42,7 +42,7 @@ services:
     container_name: php
     restart: unless-stopped
     volumes:
-      - ./wordpress:/var/www/html:rw,z
+      - ./src/wordpress:/var/www/html:rw,z
     networks:
       - wp-network
   # nginx webserver
@@ -57,7 +57,7 @@ services:
       - 8080:80
     volumes:
       - ./.config/nginx:/etc/nginx/conf.d
-      - ./wordpress:/var/www/html:rw,z
+      - ./src/wordpress:/var/www/html:rw,z
     networks:
       - wp-network
 

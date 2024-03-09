@@ -23,10 +23,8 @@
       // Add the IDs of extensions you want installed when the container is created.
       "extensions": [
         "ms-azuretools.vscode-docker",
-        "bmewburn.vscode-intelephense-client",
-        "xdebug.php-debug",
         "esbenp.prettier-vscode",
-        "cweijan.vscode-database-client2"
+        "DEVSENSE.phptools-vscode"
       ]
     }
   },
